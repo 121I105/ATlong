@@ -22,10 +22,10 @@ public class Score : MonoBehaviour
         Debug.Log(set_cnt);
         t_cnt.text = set_cnt + " 回目終了";
         
-        // セット回数が45以上ならば45回目の終了として表示
-        if(set_cnt >= 45)
+        // セット回数が50以上ならば50回目の終了として表示
+        if(set_cnt >= 50)
         {
-            t_cnt.text = "45 回目終了";
+            t_cnt.text = "50 回目終了";
         }
     }
 }

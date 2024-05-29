@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class Shooting : MonoBehaviour
 {
-    // 弾のプレハブ
-    public GameObject bulletPrefab;
-    // 弾の速度
-    public float shotSpeed;
-    // 弾の発射間隔
-    private float shotInterval;
+    // カメラの参照
+    private Camera mainCamera;
     // クリックのフラグ
     bool Flag = true;   
     // クリックした回数
     public static int Click_cnt = 0;
+
+    void Start()
+    {
+        // メインカメラの参照を取得
+        mainCamera = Camera.main;
+    }
 
     void Update()
     {
@@ -25,14 +27,26 @@ public class Shooting : MonoBehaviour
                 // ターゲットが表示されている状態でのみクリックがカウントされる
                 if (Create_Target.Stt == true)
                 {
-                    Click_cnt++; 
+                    Click_cnt++;
                 }
-                // 弾を生成して発射
-                GameObject bullet = (GameObject)Instantiate(bulletPrefab, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y, 0));
-                Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
-                bulletRb.AddForce(transform.forward * shotSpeed);
+                
+                // レイキャストを使ってヒット判定
+                Ray ray = mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    if (hit.collider.CompareTag("Target"))
+                    {
+                        // ターゲットにヒット
+                        Debug.Log("Target hit!");
+                        Destroy_obj.hit_count++;
+                        Destroy(hit.collider.gameObject);
+                        Create_Target.Create = true;    
+                        hit_flag.h_flag[Create_Target.Create_count] = 1;
+                    }
+                }
+                
                 Flag = false;
-                Destroy(bullet, 1.0f); // 弾を一定時間後に削除
             }
         }
         else

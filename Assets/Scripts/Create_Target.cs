@@ -5,71 +5,111 @@ using UnityEngine.SceneManagement;
 
 public class Create_Target : MonoBehaviour
 {
-    // ターゲットの生成が可能かどうかを示すフラグ
+    // ターゲットを生成するかどうかを制御するフラグ
     public static bool Create = true;
     // ターゲットのプレハブ
     public GameObject Target;
-    // ターゲットのインスタンス
+    // 生成されたターゲットのインスタンス
     public static GameObject obj;
-    // ターゲット生成の状態を示すフラグ
+    // タイマーのステータスを示すフラグ
     public static bool Stt = false;
-    // 経過時間
+    // 経過時間を保持する変数
     float elapsedTime;
-    // 生成されたターゲットの数
+    // 生成したターゲットの数
     public static int Create_count = 0;
-    // ターゲットを生成するかどうかのフラグ
+    // ターゲットの位置を重複させないためのフラグ
     bool dainyuu = false;
-    // ターゲットの生成時間の配列
-    public static float[] T_array = new float[10];
+    // ターゲットの位置配列
+    public static float[] T_array = new float[16];
+
+    // ターゲットの初期位置
+    private Vector3[] targetPositions = new Vector3[]
+    {
+        new Vector3(0, 20, 50),          // 0
+        new Vector3(0, 40, 50),          // 1
+        new Vector3(21.21f, 41.21f, 50), // 2
+        new Vector3(30, 20, 50),         // 3
+        new Vector3(21.21f, -1.21f, 50), // 4
+        new Vector3(0, 0, 50),           // 5
+        new Vector3(-21.21f, -1.21f, 50), // 6
+        new Vector3(-30, 20, 50),        // 7
+        new Vector3(-21.21f, 41.21f, 50) // 8
+    };
+
+    // 未使用のターゲット位置リスト
+    private List<int> remainingPositions = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+    // 前回のランダムな位置
+    private int lastRandomPosition = -1;
 
     void Start()
     {
-        // コルーチンを開始して3秒後に生成フラグを立てる
+        // コルーチンを開始し、1秒後にステータスを有効にする
         StartCoroutine("Coroutine");
+        Create_Target.Create = true;
+        Debug.Log("Create_Target.Create の値: " + Create_Target.Create);
     }
 
-    // 3秒後に生成フラグを立てるコルーチン
     private IEnumerator Coroutine()
     {
-        yield return new WaitForSeconds(3.0f);
+        // 1秒待機してからステータスを有効にする
+        yield return new WaitForSeconds(1.0f);
         Stt = true;
         yield break;
     }
-    
+
     void Update()
     {
-        // ターゲットを生成する条件を満たしている場合
-        if (Create == true && Stt == true && Create_count <= 9)
+        // ターゲット生成可能かつステータスが有効であり、生成上限に達していない場合
+        if (Create == true && Stt == true && Create_count <= 15)
         {
-            // ターゲットの生成が完了している場合
+            // 既にターゲットが生成されている場合
             if (dainyuu == true)
             {
-                // ターゲット生成にかかった時間を記録し、初期化
+                // 経過時間を配列に格納し、リセットする
                 T_array[Create_count] = elapsedTime;
                 Debug.Log(T_array[Create_count]);
                 elapsedTime = 0.0f;
                 Create_count++;
+                dainyuu = false;
             }
-            // ターゲットを生成する
-            if (Create_count <= 9) 
+
+            // まだターゲットを生成できる場合
+            if (Create_count <= 15)
             {
-                var Tgt_x = Random.Range(-8.0f, 8.0f);
-                var Tgt_y = Random.Range(1.5f, 8.0f);
-                obj = Instantiate(Target, new Vector3(Tgt_x, Tgt_y, 11.15f), Quaternion.identity);
+                // ターゲットの生成位置を決定
+                if (Create_count % 2 == 0)
+                {
+                    obj = Instantiate(Target, targetPositions[0], Quaternion.identity);
+                }
+                else
+                {
+                    // 未使用の位置からランダムに選択し、その位置にターゲットを生成
+                    if (remainingPositions.Count == 0)
+                    {
+                        remainingPositions = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+                    }
+                    int randomIndex = Random.Range(0, remainingPositions.Count);
+                    int randomPos = remainingPositions[randomIndex];
+                    remainingPositions.RemoveAt(randomIndex);
+
+                    obj = Instantiate(Target, targetPositions[randomPos], Quaternion.identity);
+                    lastRandomPosition = randomPos;
+                }
                 Create = false;
             }
         }
-        // ターゲットが生成中の場合
-        else if(Stt == true && Create_count <= 9)
+        // ステータスが有効であり、生成上限に達していない場合
+        else if (Stt == true && Create_count <= 15)
         {
-            // 経過時間を更新
+            // 経過時間を更新し、フラグをセットする
             elapsedTime += Time.deltaTime;
             dainyuu = true;
         }
-        // ターゲット生成が完了した場合
-        if(Create_count >= 10)
+
+        // 生成上限に達した場合
+        if (Create_count >= 16)
         {
-            // ターゲット生成の状態をリセットし、ゲーム終了シーンに遷移
+            // ステータスを無効にし、生成数をリセットし、シーンを切り替える
             Stt = false;
             Create_count = 0;
             SceneManager.LoadScene("End");

@@ -46,7 +46,7 @@ public class Result_to_csv : MonoBehaviour
         hf = String.Join(",", hit_flag.h_flag);
         
         // 結果を書き出すCSVファイルのパスとファイル名
-        string fileName = "suzuka_result";
+        string fileName = "sato_result";
         FileInfo fi;
         fi = new FileInfo(Application.persistentDataPath + "/" + fileName + ".csv");
 
@@ -58,7 +58,7 @@ public class Result_to_csv : MonoBehaviour
         }
 
         // マウス座標を書き出すCSVファイルのパスとファイル名
-        string fileName1 = "suzuka_mouse";
+        string fileName1 = "sato_mouse";
         FileInfo fi1;
         fi1 = new FileInfo(Application.persistentDataPath + "/" + fileName1 + ".csv");
 
@@ -84,7 +84,7 @@ public class Result_to_csv : MonoBehaviour
         Destroy_obj.hit_count = 0;
         Shooting.Click_cnt = 0;
         FPS.CameraController.ms = 0;
-        if (Score.set_cnt == 45)
+        if (Score.set_cnt == 50)
         {
             SceneManager.LoadScene("Start");
         }
