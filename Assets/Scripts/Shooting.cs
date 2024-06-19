@@ -20,7 +20,7 @@ public class Shooting : MonoBehaviour
     void Update()
     {
         // マウスの左クリックが押されたら
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (Input.GetMouseButtonDown(0))
         {
             if (Flag == true)
             {
@@ -29,7 +29,7 @@ public class Shooting : MonoBehaviour
                 {
                     Click_cnt++;
                 }
-                
+
                 // レイキャストを使ってヒット判定
                 Ray ray = mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
                 RaycastHit hit;
@@ -41,11 +41,11 @@ public class Shooting : MonoBehaviour
                         Debug.Log("Target hit!");
                         Destroy_obj.hit_count++;
                         Destroy(hit.collider.gameObject);
-                        Create_Target.Create = true;    
+                        Create_Target.Create = true;
                         hit_flag.h_flag[Create_Target.Create_count] = 1;
                     }
                 }
-                
+
                 Flag = false;
             }
         }

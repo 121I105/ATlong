@@ -6,6 +6,9 @@ namespace FPS
 {
     public class CameraController : MonoBehaviour
     {
+        // カメラの初期の回転
+        private Quaternion initialRotation;
+
         // 視点の感度
         [Range(0.1f, 20f)]
         public float lookSensitivity = 5f;
@@ -63,6 +66,9 @@ namespace FPS
             // VSyncを無効化し、フレームレートを60に設定
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
+
+            // カメラの初期の回転を保存
+            initialRotation = transform.rotation;
         }
 
         void Update()
@@ -98,6 +104,21 @@ namespace FPS
 
             // カメラの回転を更新
             transform.rotation = Quaternion.Euler(currentXRot, currentYRot, 0);
+        }
+
+        // カメラを初期の向きにリセットするメソッド
+        public void ResetCameraOrientation()
+        {
+            // カメラの回転を初期の回転に戻す
+            if (initialRotation != null)
+            {
+                transform.rotation = initialRotation;
+                Debug.Log("Camera rotation reset called.");
+            }
+            else
+            {
+                Debug.Log("FPS Camera not found!");
+            }
         }
     }
 }
