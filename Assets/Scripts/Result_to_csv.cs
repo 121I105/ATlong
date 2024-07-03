@@ -17,7 +17,7 @@ public class Result_to_csv : MonoBehaviour
     float time = 0f;
     int i = 0, j = 1;
     int hitf_cnt = 1;
-    
+
     // タイマーのテキストUI要素
     public Text sec;
 
@@ -44,7 +44,7 @@ public class Result_to_csv : MonoBehaviour
         DPI = Info.DPI;
         sum = hit_time + "," + DPI;
         hf = String.Join(",", hit_flag.h_flag);
-        
+
         // 結果を書き出すCSVファイルのパスとファイル名
         string fileName = "sato_result";
         FileInfo fi;
@@ -53,7 +53,16 @@ public class Result_to_csv : MonoBehaviour
         // 結果の書き出し
         using (StreamWriter sw = fi.AppendText())
         {
-            sw.WriteLine(hf);
+            // `hit_flag.h_flag` のサイズが `Create_Target.Create_count` 以上か確認する
+            if (hit_flag.h_flag.Length > Create_Target.Create_count)
+            {
+                sw.WriteLine(hf);
+            }
+            else
+            {
+                Debug.LogError("Index out of bounds: hit_flag.h_flag length exceeded Create_Target.Create_count");
+            }
+
             sw.WriteLine(sum);
         }
 
@@ -69,10 +78,19 @@ public class Result_to_csv : MonoBehaviour
             sw1.WriteLine(top1);
             for (int n = 0; n <= FPS.CameraController.ms; n++)
             {
-                sum1 = String.Join(",", j, FPS.CameraController.xpd[n], FPS.CameraController.ypd[n]);
-                sw1.WriteLine(sum1);
-                j++;
-                if (FPS.CameraController.hitflame[hitf_cnt] <= n) {
+                if (j < int.MaxValue)
+                {
+                    sum1 = String.Join(",", j, FPS.CameraController.xpd[n], FPS.CameraController.ypd[n]);
+                    sw1.WriteLine(sum1);
+                    j++;
+                }
+                else
+                {
+                    Debug.LogWarning("Index j is going out of bounds.");
+                }
+
+                if (FPS.CameraController.hitflame.Length > hitf_cnt && FPS.CameraController.hitflame[hitf_cnt] <= n)
+                {
                     j = 1;
                     hitf_cnt++;
                 }

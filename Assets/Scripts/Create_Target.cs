@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
 
 public class Create_Target : MonoBehaviour
 {
@@ -20,11 +20,11 @@ public class Create_Target : MonoBehaviour
         new Vector3(12.5f, 41.65f, 50f), //2
         new Vector3(21.65f, 32.5f, 50f), //3
         new Vector3(25f, 20f, 50f), //4
-        new Vector3(21.65f, 7.49f, 50f), //5
+        new Vector3(21.65f, 7.5f, 50f), //5
         new Vector3(12.5f, -1.65f, 50f), //6
         new Vector3(0f, -5f, 50f), //7
         new Vector3(-12.5f, -1.65f, 50f), //8
-        new Vector3(-21.65f, 7.49f, 50f), //9
+        new Vector3(-21.65f, 7.5f, 50f), //9
         new Vector3(-25f, 20f, 50f), //10
         new Vector3(-21.65f, 32.5f, 50f), //11
         new Vector3(-12.5f, 41.65f, 50f) //12
@@ -57,6 +57,13 @@ public class Create_Target : MonoBehaviour
                 elapsedTime = 0.0f;
                 Create_count++;
                 dainyuu = false;
+
+                // ターゲット生成時にカメラの視点をリセットする
+                FPS.CameraController cameraController = FindObjectOfType<FPS.CameraController>();
+                if (cameraController != null)
+                {
+                    cameraController.StartCameraReset(); // 新たに追加したメソッドを呼び出す
+                }
             }
 
             if (Create_count < 12) // カウント条件を12に変更
