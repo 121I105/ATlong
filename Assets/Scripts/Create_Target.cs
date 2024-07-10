@@ -12,22 +12,22 @@ public class Create_Target : MonoBehaviour
     float elapsedTime;
     public static int Create_count = 0;
     bool dainyuu = false;
-    public static float[] T_array = new float[12]; // ターゲット数を12に変更
+    public static float[] T_array = new float[12];
 
     private Vector3[] targetPositions = new Vector3[]
     {
-        new Vector3(0f, 45f, 50f), //1
-        new Vector3(12.5f, 41.65f, 50f), //2
-        new Vector3(21.65f, 32.5f, 50f), //3
-        new Vector3(25f, 20f, 50f), //4
-        new Vector3(21.65f, 7.5f, 50f), //5
-        new Vector3(12.5f, -1.65f, 50f), //6
-        new Vector3(0f, -5f, 50f), //7
-        new Vector3(-12.5f, -1.65f, 50f), //8
-        new Vector3(-21.65f, 7.5f, 50f), //9
-        new Vector3(-25f, 20f, 50f), //10
-        new Vector3(-21.65f, 32.5f, 50f), //11
-        new Vector3(-12.5f, 41.65f, 50f) //12
+        new Vector3(0f, 45f, 50f),
+        new Vector3(12.5f, 41.65f, 50f),
+        new Vector3(21.65f, 32.5f, 50f),
+        new Vector3(25f, 20f, 50f),
+        new Vector3(21.65f, 7.5f, 50f),
+        new Vector3(12.5f, -1.65f, 50f),
+        new Vector3(0f, -5f, 50f),
+        new Vector3(-12.5f, -1.65f, 50f),
+        new Vector3(-21.65f, 7.5f, 50f),
+        new Vector3(-25f, 20f, 50f),
+        new Vector3(-21.65f, 32.5f, 50f),
+        new Vector3(-12.5f, 41.65f, 50f)
     };
 
     private List<int> remainingPositions = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -48,7 +48,13 @@ public class Create_Target : MonoBehaviour
 
     void Update()
     {
-        if (Create == true && Stt == true && Create_count < 12) // カウント条件を12に変更
+        FPS.CameraController cameraController = FindObjectOfType<FPS.CameraController>();
+        if (cameraController != null && cameraController.isReset)
+        {
+            return; // カメラがリセット状態の場合、ターゲット生成をスキップ
+        }
+
+        if (Create == true && Stt == true && Create_count < 12)
         {
             if (dainyuu == true)
             {
@@ -58,15 +64,13 @@ public class Create_Target : MonoBehaviour
                 Create_count++;
                 dainyuu = false;
 
-                // ターゲット生成時にカメラの視点をリセットする
-                FPS.CameraController cameraController = FindObjectOfType<FPS.CameraController>();
                 if (cameraController != null)
                 {
-                    cameraController.StartCameraReset(); // 新たに追加したメソッドを呼び出す
+                    cameraController.ResetCameraOrientation();
                 }
             }
 
-            if (Create_count < 12) // カウント条件を12に変更
+            if (Create_count < 12)
             {
                 if (remainingPositions.Count == 0)
                 {
@@ -80,13 +84,13 @@ public class Create_Target : MonoBehaviour
             }
             Create = false;
         }
-        else if (Stt == true && Create_count < 12) // カウント条件を12に変更
+        else if (Stt == true && Create_count < 12)
         {
             elapsedTime += Time.deltaTime;
             dainyuu = true;
         }
 
-        if (Create_count >= 12) // カウント条件を12に変更
+        if (Create_count >= 12)
         {
             Stt = false;
             Create_count = 0;

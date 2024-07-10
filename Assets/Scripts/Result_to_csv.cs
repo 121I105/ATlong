@@ -4,12 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.IO;
-using System.Text;
 using UnityEngine.SceneManagement;
 
 public class Result_to_csv : MonoBehaviour
 {
-    // CSVに書き出すデータを保持する変数
     string DPI;
     string hit_time;
     int hit = 0;
@@ -18,43 +16,37 @@ public class Result_to_csv : MonoBehaviour
     int i = 0, j = 1;
     int hitf_cnt = 1;
 
-    // タイマーのテキストUI要素
     public Text sec;
 
     void Update()
     {
-        // 残り時間を計算し、UIに表示
         time += Time.deltaTime;
         i = 5 - (int)time;
         sec.text = "リスタートまで残り " + i.ToString() + " 秒";
 
-        // 残り時間が0以下になったらCSVファイルに結果を書き出す
         if (i <= 0)
         {
             OP_csv();
         }
     }
 
-    // CSVファイルに書き出す処理
     public void OP_csv()
     {
-        // 各種データを取得
         hit = Destroy_obj.hit_count;
         hit_time = String.Join(",", Create_Target.T_array);
         DPI = Info.DPI;
         sum = hit_time + "," + DPI;
         hf = String.Join(",", hit_flag.h_flag);
 
-        // 結果を書き出すCSVファイルのパスとファイル名
-        string fileName = "sato_result";
-        FileInfo fi;
-        fi = new FileInfo(Application.persistentDataPath + "/" + fileName + ".csv");
+        // デスクトップのパスを取得
+        string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
-        // 結果の書き出し
-        using (StreamWriter sw = fi.AppendText())
+        // 結果用CSVファイルの保存先パス
+        string resultFilePath = Path.Combine(desktopPath, "sato_result.csv");
+        using (StreamWriter sw = new StreamWriter(resultFilePath))
         {
-            // `hit_flag.h_flag` のサイズが `Create_Target.Create_count` 以上か確認する
-            if (hit_flag.h_flag.Length > Create_Target.Create_count)
+            // Create_Target.Create_count に基づいて書き込む行数を制御
+            if (Create_Target.Create_count < hit_flag.h_flag.Length)
             {
                 sw.WriteLine(hf);
             }
@@ -66,13 +58,9 @@ public class Result_to_csv : MonoBehaviour
             sw.WriteLine(sum);
         }
 
-        // マウス座標を書き出すCSVファイルのパスとファイル名
-        string fileName1 = "sato_mouse";
-        FileInfo fi1;
-        fi1 = new FileInfo(Application.persistentDataPath + "/" + fileName1 + ".csv");
-
-        // マウス座標の書き出し
-        using (StreamWriter sw1 = fi1.AppendText())
+        // マウスの移動履歴用CSVファイルの保存先パス
+        string mouseFilePath = Path.Combine(desktopPath, "sato_mouse.csv");
+        using (StreamWriter sw1 = new StreamWriter(mouseFilePath))
         {
             top1 = String.Join(",", "num", "x", "y");
             sw1.WriteLine(top1);
@@ -89,7 +77,8 @@ public class Result_to_csv : MonoBehaviour
                     Debug.LogWarning("Index j is going out of bounds.");
                 }
 
-                if (FPS.CameraController.hitflame.Length > hitf_cnt && FPS.CameraController.hitflame[hitf_cnt] <= n)
+                // FPS.CameraController.hitflame の長さと hitf_cnt に基づいて条件を調整
+                if (hitf_cnt < FPS.CameraController.hitflame.Length && FPS.CameraController.hitflame[hitf_cnt] <= n)
                 {
                     j = 1;
                     hitf_cnt++;
@@ -97,11 +86,12 @@ public class Result_to_csv : MonoBehaviour
             }
         }
 
-        // ログを出力し、変数をリセットしてシーンを遷移
-        Debug.Log("出力した");
+        Debug.Log("CSVファイルを出力しました。");
         Destroy_obj.hit_count = 0;
         Shooting.Click_cnt = 0;
         FPS.CameraController.ms = 0;
+
+        // Score.set_cnt が 50 に達しているかどうかを確認してシーン遷移
         if (Score.set_cnt == 50)
         {
             SceneManager.LoadScene("Start");

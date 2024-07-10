@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace FPS
@@ -7,10 +6,13 @@ namespace FPS
     public class CameraController : MonoBehaviour
     {
         private Quaternion initialRotation;
+
         [Range(0.1f, 20f)]
         public float lookSensitivity = 5f;
+
         [Range(0.0f, 1f)]
         public float lookSmooth = 0.0f;
+
         public Vector2 MinMaxAngle = new Vector2(-65, 65);
 
         private float yRot;
@@ -31,9 +33,13 @@ namespace FPS
 
         [SerializeField] bool m_cursor;
 
+        public bool isReset = false;  // フラグをpublicに変更
+        private Coroutine resetCoroutine;
+
         void Start()
         {
             lookSensitivity = Aim;
+
             Cursor.visible = false;
             Cursor.visible = m_cursor;
 
@@ -54,23 +60,35 @@ namespace FPS
 
         void Update()
         {
+            if (isReset)
+            {
+                return;
+            }
+
             yRot += Input.GetAxis("Mouse X") * lookSensitivity;
             xRot -= Input.GetAxis("Mouse Y") * lookSensitivity;
 
-            if (Create_Target.Create == false)
+            // ms の値が範囲内に収まるかどうかを確認する
+            if (ms < xpd.Length && ms < ypd.Length)
             {
-                xp = Input.GetAxis("Mouse X");
-                yp = Input.GetAxis("Mouse Y");
-                xpd[ms] = xp + temx;
-                temx = xpd[ms];
-                ypd[ms] = yp + temy;
-                temy = ypd[ms];
-                ms++;
-            }
-            else if (Create_Target.Stt == true)
-            {
-                hitflame[hitflame_cnt] = ms;
-                hitflame_cnt++;
+                if (Create_Target.Create == false)
+                {
+                    xp = Input.GetAxis("Mouse X");
+                    yp = Input.GetAxis("Mouse Y");
+                    xpd[ms] = xp + temx;
+                    temx = xpd[ms];
+                    ypd[ms] = yp + temy;
+                    temy = ypd[ms];
+                    ms++;
+                }
+                else if (Create_Target.Stt == true)
+                {
+                    if (hitflame_cnt < hitflame.Length)
+                    {
+                        hitflame[hitflame_cnt] = ms; // hitflame の配列も範囲内に収まっていることを確認する必要があります
+                        hitflame_cnt++;
+                    }
+                }
             }
 
             xRot = Mathf.Clamp(xRot, MinMaxAngle.x, MinMaxAngle.y);
@@ -78,25 +96,38 @@ namespace FPS
             currentYRot = Mathf.SmoothDamp(currentYRot, yRot, ref yRotVelocity, lookSmooth);
 
             transform.rotation = Quaternion.Euler(currentXRot, currentYRot, 0);
+
+            // マウス左クリックでカメラをリセット
+            if (Input.GetMouseButtonDown(0))
+            {
+                ResetCameraOrientation();
+                isReset = true;
+
+                if (resetCoroutine != null)
+                {
+                    StopCoroutine(resetCoroutine); // 既存のコルーチンを停止
+                }
+
+                resetCoroutine = StartCoroutine(ResetCameraAfterDelay(3.0f)); // 新しいコルーチンを開始
+            }
+        }
+
+        private IEnumerator ResetCameraAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            isReset = false;
+            resetCoroutine = null;
         }
 
         public void ResetCameraOrientation()
         {
-            if (initialRotation != null)
-            {
-                transform.rotation = initialRotation;
-                Debug.Log("Camera rotation reset called.");
-            }
-            else
-            {
-                Debug.Log("FPS Camera not found!");
-            }
-        }
-
-        public void StartCameraReset()
-        {
             transform.rotation = initialRotation;
             Debug.Log("Camera rotation reset called.");
+
+            xRot = 0f;
+            yRot = 0f;
+            currentXRot = 0f;
+            currentYRot = 0f;
         }
     }
 }
