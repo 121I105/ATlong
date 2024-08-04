@@ -26,14 +26,14 @@ namespace FPS
         public static float[] xpd = new float[6000];
         public static float[] ypd = new float[6000];
         public static int ms = 0;
-        public static int[] hitflame = new int[11];
+        public static int[] hitflame = new int[12];
         int hitflame_cnt = 0;
         float xp = 0, temx = 0;
         float yp = 0, temy = 0;
 
         [SerializeField] bool m_cursor;
 
-        public bool isReset = false;  // フラグをpublicに変更
+        public bool isReset = false;
         private Coroutine resetCoroutine;
 
         void Start()
@@ -68,10 +68,9 @@ namespace FPS
             yRot += Input.GetAxis("Mouse X") * lookSensitivity;
             xRot -= Input.GetAxis("Mouse Y") * lookSensitivity;
 
-            // ms の値が範囲内に収まるかどうかを確認する
             if (ms < xpd.Length && ms < ypd.Length)
             {
-                if (Create_Target.Create == false)
+                if (Create_Target.TargetVisible)
                 {
                     xp = Input.GetAxis("Mouse X");
                     yp = Input.GetAxis("Mouse Y");
@@ -81,14 +80,6 @@ namespace FPS
                     temy = ypd[ms];
                     ms++;
                 }
-                else if (Create_Target.Stt == true)
-                {
-                    if (hitflame_cnt < hitflame.Length)
-                    {
-                        hitflame[hitflame_cnt] = ms; // hitflame の配列も範囲内に収まっていることを確認する必要があります
-                        hitflame_cnt++;
-                    }
-                }
             }
 
             xRot = Mathf.Clamp(xRot, MinMaxAngle.x, MinMaxAngle.y);
@@ -97,18 +88,32 @@ namespace FPS
 
             transform.rotation = Quaternion.Euler(currentXRot, currentYRot, 0);
 
-            // マウス左クリックでカメラをリセット
             if (Input.GetMouseButtonDown(0))
             {
-                ResetCameraOrientation();
-                isReset = true;
-
-                if (resetCoroutine != null)
+                if (Create_Target.TargetVisible)
                 {
-                    StopCoroutine(resetCoroutine); // 既存のコルーチンを停止
-                }
+                    if (hitflame_cnt < hitflame.Length)
+                    {
+                        hitflame[hitflame_cnt] = ms;
+                        Debug.Log($"Hit recorded: {ms} at index {hitflame_cnt}");
+                        hitflame_cnt++;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("hitflame配列が一杯です。");
+                    }
 
-                resetCoroutine = StartCoroutine(ResetCameraAfterDelay(3.0f)); // 新しいコルーチンを開始
+                    ResetCameraOrientation();
+                    isReset = true;
+
+                    if (resetCoroutine != null)
+                    {
+                        StopCoroutine(resetCoroutine);
+                    }
+
+                    resetCoroutine = StartCoroutine(ResetCameraAfterDelay(0.5f));
+                    Create_Target.TargetVisible = false;
+                }
             }
         }
 
@@ -128,6 +133,16 @@ namespace FPS
             yRot = 0f;
             currentXRot = 0f;
             currentYRot = 0f;
+        }
+
+        public void ResetHitflameArray()
+        {
+            for (int i = 0; i < hitflame.Length; i++)
+            {
+                hitflame[i] = 0;
+            }
+            hitflame_cnt = 0;
+            Debug.Log("hitflame array and counter reset.");
         }
     }
 }

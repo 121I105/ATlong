@@ -19,7 +19,7 @@ public class Destroy_obj : MonoBehaviour
             // 新しいターゲットを生成するためのフラグを立てる
             Create_Target.Create = true;
             // ヒットしたターゲットを記録するフラグを立てる
-            hit_flag.h_flag[Create_Target.Create_count] = 1;
+            //hit_flag.h_flag[Create_Target.Create_count] = 1;
         }
     }
 }

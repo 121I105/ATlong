@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Create_Target : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class Create_Target : MonoBehaviour
     public GameObject Target;
     public static GameObject obj;
     public static bool Stt = false;
+    public static bool TargetVisible = false; // 追加
     float elapsedTime;
     public static int Create_count = 0;
     bool dainyuu = false;
@@ -41,7 +42,7 @@ public class Create_Target : MonoBehaviour
 
     private IEnumerator Coroutine()
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.5f);
         Stt = true;
         yield break;
     }
@@ -81,6 +82,7 @@ public class Create_Target : MonoBehaviour
                 remainingPositions.RemoveAt(randomIndex);
 
                 obj = Instantiate(Target, targetPositions[randomPos], Quaternion.identity);
+                TargetVisible = true; // ターゲットが出現したことを示すフラグを設定
             }
             Create = false;
         }

@@ -1,10 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using UnityEngine.SceneManagement;
 using System;
 using System.IO;
-using UnityEngine.SceneManagement;
 
 public class Result_to_csv : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class Result_to_csv : MonoBehaviour
     float time = 0f;
     int i = 0, j = 1;
     int hitf_cnt = 1;
+    int operationCount = 1; // セット内での操作回数
+    float startX = 0f; // 操作開始時のX位置
+    float startY = 0f; // 操作開始時のY位置
 
     public Text sec;
 
@@ -43,46 +47,43 @@ public class Result_to_csv : MonoBehaviour
 
         // 結果用CSVファイルの保存先パス
         string resultFilePath = Path.Combine(desktopPath, "sato_result.csv");
-        using (StreamWriter sw = new StreamWriter(resultFilePath))
-        {
-            // Create_Target.Create_count に基づいて書き込む行数を制御
-            if (Create_Target.Create_count < hit_flag.h_flag.Length)
-            {
-                sw.WriteLine(hf);
-            }
-            else
-            {
-                Debug.LogError("Index out of bounds: hit_flag.h_flag length exceeded Create_Target.Create_count");
-            }
 
+        using (StreamWriter sw = new StreamWriter(resultFilePath, true)) // 'true' to append to the file
+        {
+            sw.WriteLine(hf);
             sw.WriteLine(sum);
         }
 
         // マウスの移動履歴用CSVファイルの保存先パス
         string mouseFilePath = Path.Combine(desktopPath, "sato_mouse.csv");
-        using (StreamWriter sw1 = new StreamWriter(mouseFilePath))
+        using (StreamWriter sw1 = new StreamWriter(mouseFilePath, true)) // 'true' to append to the file
         {
-            top1 = String.Join(",", "num", "x", "y");
-            sw1.WriteLine(top1);
+            // ヘッダー行を追記
+            if (FPS.CameraController.ms == 0)
+            {
+                top1 = String.Join(",", "set_num", "operation_count", "num", "x", "y", "distance_from_start");
+                sw1.WriteLine(top1);
+            }
+
             for (int n = 0; n <= FPS.CameraController.ms; n++)
             {
-                if (j < int.MaxValue)
-                {
-                    sum1 = String.Join(",", j, FPS.CameraController.xpd[n], FPS.CameraController.ypd[n]);
-                    sw1.WriteLine(sum1);
-                    j++;
-                }
-                else
-                {
-                    Debug.LogWarning("Index j is going out of bounds.");
-                }
+                float xCoord = FPS.CameraController.xpd[n];
+                float yCoord = FPS.CameraController.ypd[n];
 
-                // FPS.CameraController.hitflame の長さと hitf_cnt に基づいて条件を調整
                 if (hitf_cnt < FPS.CameraController.hitflame.Length && FPS.CameraController.hitflame[hitf_cnt] <= n)
                 {
                     j = 1;
+                    operationCount++;
                     hitf_cnt++;
+                    startX = xCoord; // 操作開始時のX位置を更新
+                    startY = yCoord; // 操作開始時のY位置を更新
                 }
+
+                float distanceFromStart = Mathf.Sqrt(Mathf.Pow(xCoord - startX, 2) + Mathf.Pow(yCoord - startY, 2));
+
+                sum1 = String.Join(",", Score.set_cnt, operationCount, j, xCoord - startX, yCoord - startY, distanceFromStart);
+                sw1.WriteLine(sum1);
+                j++;
             }
         }
 
@@ -100,5 +101,7 @@ public class Result_to_csv : MonoBehaviour
         {
             SceneManager.LoadScene("Play");
         }
+
+        operationCount = 1; // セット終了後に操作回数をリセット
     }
 }

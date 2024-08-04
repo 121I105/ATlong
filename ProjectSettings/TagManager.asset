@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Shell
   - Target
+  - Wall
   layers:
   - Default
   - TransparentFX
