@@ -2,21 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class hit_flag : MonoBehaviour
+public static class hit_flag
 {
-    // ターゲットがヒットされたかどうかを記録するフラグの配列
     public static int[] h_flag = new int[12];
 
-    void Start()
+    // 静的コンストラクタ（初期化処理）
+    static hit_flag()
     {
-        // hit_flag配列を0で初期化
+        ResetHitFlagArray();
+    }
+
+    // 配列をリセットする静的メソッド
+    public static void ResetHitFlagArray()
+    {
         for (int i = 0; i < h_flag.Length; i++)
         {
             h_flag[i] = 0;
         }
-    }
-
-    void Update()
-    {
+        Debug.Log("hit_flag.h_flag 配列をリセットしました。");
     }
 }

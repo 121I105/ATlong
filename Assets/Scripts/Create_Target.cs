@@ -35,6 +35,9 @@ public class Create_Target : MonoBehaviour
 
     void Start()
     {
+        // hit_flag.h_flag 配列をリセット
+        hit_flag.ResetHitFlagArray();
+
         StartCoroutine("Coroutine");
         Create_Target.Create = true;
         Debug.Log("Create_Target.Create の値: " + Create_Target.Create);

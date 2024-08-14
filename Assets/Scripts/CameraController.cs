@@ -26,7 +26,7 @@ namespace FPS
         public static float[] xpd = new float[6000];
         public static float[] ypd = new float[6000];
         public static int ms = 0;
-        public static int[] hitflame = new int[12];
+        public static int[] hitflame = new int[11];
         int hitflame_cnt = 0;
         float xp = 0, temx = 0;
         float yp = 0, temy = 0;

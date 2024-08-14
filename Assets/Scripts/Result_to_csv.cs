@@ -15,7 +15,7 @@ public class Result_to_csv : MonoBehaviour
     string sum, sum1, hf, top1;
     float time = 0f;
     int i = 0, j = 1;
-    int hitf_cnt = 1;
+    int hitf_cnt = 0;
     int operationCount = 1; // セット内での操作回数
     float startX = 0f; // 操作開始時のX位置
     float startY = 0f; // 操作開始時のY位置
